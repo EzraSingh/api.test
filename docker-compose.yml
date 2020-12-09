@@ -1,11 +1,33 @@
 version: '3'
 
+networks:
+  internal-tier:
+
 services:
-  database:
+  api:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: npm start
+    restart: always
+    ports:
+      - ${API_PORT}:3000
+    volumes:
+      - ./src:/app/src
+    networks:
+      - internal-tier
+    depends_on:
+      - mysqldb
+  mysqldb:
     image: mysql:latest
     command: --default-authentication-plugin=mysql_native_password
+    restart: always
     ports:
-      - 5000:3306
+      - ${MYSQL_PORT}:3306
+    networks:
+      - internal-tier
     environment:
-      # the default user is root
-      MYSQL_ROOT_PASSWORD: example
+      MYSQL_USER: app
+      MYSQL_PASSWORD: test
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: development
