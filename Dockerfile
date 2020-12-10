@@ -1,13 +1,25 @@
-FROM node:latest AS Builder
+FROM node:12-alpine AS Base
 
-WORKDIR /app
+RUN mkdir -p /docs
 
+WORKDIR /usr/local/app
+
+COPY ./scripts/docker-entrypoint.sh /usr/local/bin
 COPY . .
 
-RUN npm install
+RUN ln -s /usr/local/bin/docker-entrypoint.sh .
+RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
 
-FROM Builder AS Runtime
+FROM Base AS Installer
 
-EXPOSE 3000
+RUN npm i -g pm2 --silent && npm ci
 
-CMD ["npm", "start", "--", "--watch"]
+FROM Installer AS Runner
+
+RUN npm run build
+
+EXPOSE 8000
+
+ENTRYPOINT [ "sh", "/usr/local/bin/docker-entrypoint.sh" ]
+
+CMD [ "run-prod" ]
