@@ -7,8 +7,8 @@ import { AppService } from './app.service';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'mysqldb',
-      port: 3306,
+      host: 'localhost',
+      port: 6000,
       username: 'app',
       password: 'test',
       database: 'development',
